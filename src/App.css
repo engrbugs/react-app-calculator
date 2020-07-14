@@ -101,13 +101,11 @@ body {
   text-align: center;
 
   text-decoration: none;
-  color: #515151;
   display: inline-block;
 
   stroke-width: 3%;
   /* outline: 2px solid blue; */
   transition: transform 0.15s linear;
-
   margin: 0;
   width: 60px;
   height: 60px;
@@ -116,10 +114,12 @@ body {
 .button-center a {
   width: fit-content;
   font-size: 28px;
+  color: #576574;
   font-family: "Fira Code", monospace;
+  text-shadow: -1px -1px 1px rgba(255,255,255,.1), 1px 1px 1px rgba(0,0,0,.5);
+
   top: -46px;
   left: 0px;
-  color: black;
   position: relative;
   transition: transform 0.15s linear;
 }
@@ -152,9 +152,7 @@ body {
   top: -52px;
   left: 1px;
   color: whitesmoke;
-  text-shadow: 
-  0 1px 0 #ccc, 
-  0 6px 1px rgba(0,0,0,.1);
+  text-shadow: -1px -1px 1px rgba(255,255,255,.1), 1px 1px 1px rgba(0,0,0,.5);
   position: relative;
   transition: transform 0.15s linear;
 }
@@ -184,6 +182,7 @@ body {
   width: fit-content;
   font-size: 28px;
   font-family: "Fira Code", monospace;
+  
   top: -46px;
   left: 0px;
   color: #4185f4;
@@ -215,6 +214,7 @@ body {
   width: fit-content;
   font-size: 28px;
   font-family: "Fira Code", monospace;
+  text-shadow: -1px -1px 1px rgba(255,255,255,.1), 1px 1px 1px rgba(0,0,0,.5);
   top: -46px;
   left: 0px;
   color: white;

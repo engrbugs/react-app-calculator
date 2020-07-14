@@ -9,6 +9,7 @@ import Converter from "./Converter";
 // }
 
 const SVG = (props) => (
+  // Thank you, https://squircley.app !!!
   <svg
     width="50px"
     height="50px"
@@ -53,7 +54,7 @@ function Math(props) {
       id={Converter(props.id)}
     >
       <SVG
-        stroke={props.id === "=" ? "#c8d6e5" : "#c8d6e5"}
+        stroke={props.id === "=" ? "#c8d6e5" : "#74b9ff"}
         fill={props.id === "=" ? "#4185f4" : "#FAFAFA"}
       />
       <a>{props.id}</a>
