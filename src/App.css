@@ -117,7 +117,7 @@ body {
   color: #576574;
   font-family: "Fira Code", monospace;
   text-shadow: -1px -1px 1px rgba(255,255,255,.1), 1px 1px 1px rgba(0,0,0,.5);
-
+ background-color: transparent;
   top: -46px;
   left: 0px;
   position: relative;
