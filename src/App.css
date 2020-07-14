@@ -1,38 +1,89 @@
+* {
+  box-sizing: border-box;
+}
+
 .App {
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+body {
+  margin: 0;
+  background-color: purple;
+  user-select: none;
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+
+  
+}
+
+
+
+.button-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  text-align: center;
+  
+  text-decoration: none;
+  color: #515151;
+  display: inline-block;
+
+  stroke-width: 3%;
+  /* outline: 2px solid blue; */
+  transition: transform 0.15s linear;
+
+  margin: 0;
+  width: 60px;
+  height: 60px;
+}
+a {
+  width: fit-content;
+  font-size: 32px;
+  font-family: 'Fira Code', monospace;
+  top: -50px;
+  left: 0px;
   color: white;
+  position: relative;
+  transition: transform 0.15s linear;
+  
 }
 
-.App-link {
-  color: #61dafb;
+.button-center-active,
+.button-center:active {
+  opacity: 0.8;
+  transform: scale(0.95);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+svg {
+  stroke-width: 3%;
+  /* outline: 2px solid blue; */
+  transition: transform 0.15s linear;
+}
+
+.calculator {
+  width: 240px;
+  background-color: #fff;
+  height: 400px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  width: 280px;
+}
+
+.display {
+  text-align: right;
+  width: 100%;
+  background-color: black;
+  padding: 10px;
+}
+
+
+.equation {
+  text-align: right;
+  width: 100%;
 }
