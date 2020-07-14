@@ -28,8 +28,7 @@ const SVG = (props) => (
 );
 
 const Numbers = (props) => (
-  <div class="button-center" 
-  id={Converter(props.id)}>
+  <div class="button-center" id={Converter(props.id)}>
     <SVG stroke="#b2bec3" fill="#FAFAFA" />
     <a>{props.id}</a>
   </div>
@@ -38,21 +37,25 @@ const Numbers = (props) => (
 function Special(props) {
   return (
     <div
-    className={`button-special ${props.id === "Nan" && "nan"}`}
-    id={Converter(props.id)}>
-    <SVG stroke="#fab1a0" fill="#d63031" />
-    <a>{props.id}</a>
-  </div>
-);
+      className={`button-special ${props.id === "Nan" && "nan"}`}
+      id={Converter(props.id)}
+    >
+      <SVG stroke="#fab1a0" fill="#d63031" />
+      <a>{props.id}</a>
+    </div>
+  );
 }
-  
 
 function Math(props) {
   return (
-    <div class={props.id === '=' ? 'button-math-equals' : 'button-math'} 
-    id={Converter(props.id)}>
-      <SVG stroke={props.id === '=' ? '#c8d6e5' : '#c8d6e5'}
-      fill={props.id === '=' ? '#4185f4' : '#FAFAFA'} />
+    <div
+      class={props.id === "=" ? "button-math-equals" : "button-math"}
+      id={Converter(props.id)}
+    >
+      <SVG
+        stroke={props.id === "=" ? "#c8d6e5" : "#c8d6e5"}
+        fill={props.id === "=" ? "#4185f4" : "#FAFAFA"}
+      />
       <a>{props.id}</a>
     </div>
   );
