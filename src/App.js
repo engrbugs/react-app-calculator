@@ -166,13 +166,11 @@ function App() {
           if (!/\+|x|\/|—/.test(currentDisplay)){
             if ((/\+|\*|\/|-/.test(formula.substr(formula.length-1))) && (/\+|x|\/|\-/.test(currentDisplay))) {
               setFormula(formula.substr(0,formula.length-1));
-              console.log('should remove 1 in formula')
             } else if ((isNegative) && (currentDisplay.length===1)) {
               if (isNegative) {
                 if (currentDisplay==='-') {
                   setCurrentDisplay('0');}
-              } // remove negativity
-                
+              } // remove negative
             } else {
               setFormula(`${formula}${isNegative ? "(" : ""}${currentDisplay}${
                 isNegative ? ")" : ""
