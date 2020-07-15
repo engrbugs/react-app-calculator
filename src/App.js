@@ -28,7 +28,7 @@ const SVG = (props) => (
 
 function Numbers(props) {
   return (
-    <div class="button-center" id={Converter(props.id)} onClick={props.numbers}>
+    <div className="button-center" id={Converter(props.id)} onClick={props.numbers}>
       <SVG stroke="#b2bec3" fill="#FAFAFA" id={props.id} />
       <a>{props.id}</a>
     </div>
@@ -48,10 +48,10 @@ function Special(props) {
   );
 }
 
-function Math(props) {
+function MathButton(props) {
   return (
     <div
-      class={props.id === "=" ? "button-math-equals" : "button-math"}
+      className={props.id === "=" ? "button-math-equals" : "button-math"}
       id={Converter(props.id)}
       onClick={props.function}
     >
@@ -66,24 +66,80 @@ function Math(props) {
 }
 
 function App() {
-  const [currentDisplay, setCurrentDisplay] = useState('0');
-  const [formula, setFormula] = useState('');
-  
+  const [currentDisplay, setCurrentDisplay] = useState("0");
+  var [formula, setFormula] = useState(String.fromCharCode(160));
 
   function reset() {
     setCurrentDisplay("0");
+    setFormula(String.fromCharCode(160));
   }
 
   function handleNumbers(e) {
+    let needReset = false;
+    if (formula.substr(formula.length-1)==='=') {
+      needReset = true;
+      reset();
+    }  
+
+
     const value = e.target.innerText ? e.target.innerText : e.target.id;
-    setCurrentDisplay(currentDisplay === "0" ? value : currentDisplay + value);
+    switch (currentDisplay) {
+      case '0':
+        setCurrentDisplay(value)
+        break;
+      case '/':
+        setFormula(formula + currentDisplay);
+        setCurrentDisplay(value);
+        break;
+      case 'x':
+        setFormula(formula + '*');
+        setCurrentDisplay(value);
+        break;
+      case '—':
+        setFormula(formula + '-');
+        setCurrentDisplay(value);
+        break;
+      case ('+'):
+        setFormula(formula + currentDisplay);
+        setCurrentDisplay(value);
+        break;
+      default:
+        setCurrentDisplay((needReset) ? value : currentDisplay + value);
+    }
     if (currentDisplay.length > 9) {
       maxLimitError();
     }
   }
 
   function mathematicsOperations(e) {
-    const value = e.target.innerText ? e.target.innerText : e.target.id;
+    // let needReset = false;
+    // if (formula.substr(formula.length-1)==='=') {
+    //   needReset = true;
+    //   reset();
+    // }
+    if (!/LIMIT ERROR/.test(currentDisplay)) {
+      (formula===String.fromCharCode(160)) && setFormula(''); // remove the empty char.
+      const value = e.target.innerText ? e.target.innerText : e.target.id;
+      switch (value) {
+        case '÷':
+          (!/\+|x|\//.test(currentDisplay)) && setFormula(formula + currentDisplay);
+          setCurrentDisplay('/');
+          break;
+        case '×':
+          (!/\+|x|\//.test(currentDisplay)) && setFormula(formula + currentDisplay);
+          setCurrentDisplay('x');
+          break;
+        case '—':
+          setFormula(formula + currentDisplay);
+          setCurrentDisplay('—');
+          break;
+        case '+':
+          (!/\+|x|\//.test(currentDisplay)) && setFormula(formula + currentDisplay);
+          setCurrentDisplay('+');
+          break;
+        default:
+      }
+    }
   }
 
   function maxLimitError() {
@@ -91,42 +147,55 @@ function App() {
   }
 
   function inputDot() {
+    if (formula.substr(formula.length-1)==='=') {
+      reset();
+      return;
+    }
     if (!/\.|LIMIT ERROR/.test(currentDisplay)) {
       setCurrentDisplay(currentDisplay + ".");
     }
   }
-
+  function evaluate() {
+    if (formula.substr(formula.length-1)==='=') {
+    } else if (!/\+|x|\/|—|LIMIT ERROR/.test(currentDisplay)) {
+      setCurrentDisplay(eval(formula+currentDisplay));
+      setFormula(formula + currentDisplay + '=')
+    } else if (!/LIMIT ERROR/.test(currentDisplay)) {
+      setCurrentDisplay(eval(formula));
+      setFormula(formula + '=')
+    }
+  }
   return (
     <div className="calculator">
       <div id="equation" className="equation">
-        8 x 8 + 9
+        {formula}
       </div>
       <div id="display" className="display">
         {currentDisplay}
       </div>
-      <div class="divider-2">
+      <div className="divider-2">
         <span></span>{" "}
       </div>
       <Special id="AC" skills={reset} />
       <Special id="Nan" />
       <Special id="Nan" />
-      <Math id="÷" function={mathematicsOperations} />
+      <MathButton id="÷" function={mathematicsOperations} />
       <Numbers id="7" numbers={handleNumbers} />
       <Numbers id="8" numbers={handleNumbers} />
       <Numbers id="9" numbers={handleNumbers} />
-      <Math id="×" function={mathematicsOperations} />
+      <MathButton id="×" function={mathematicsOperations} />
       <Numbers id="4" numbers={handleNumbers} />
       <Numbers id="5" numbers={handleNumbers} />
       <Numbers id="6" numbers={handleNumbers} />
-      <Math id="—" function={mathematicsOperations} />
+      <MathButton id="—" function={mathematicsOperations} />
       <Numbers id="1" numbers={handleNumbers} />
       <Numbers id="2" numbers={handleNumbers} />
       <Numbers id="3" numbers={handleNumbers} />
-      <Math id="+" function={mathematicsOperations} />
+      <MathButton id="+" function={mathematicsOperations} />
       <Numbers id="." numbers={inputDot} />
       <Numbers id="0" numbers={handleNumbers} />
       <Special id="Nan" />
-      <Math id="=" />
+      <MathButton id="=" function={evaluate}/>
     </div>
   );
 }

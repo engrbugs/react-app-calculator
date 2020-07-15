@@ -117,7 +117,6 @@ body {
   color: #576574;
   font-family: "Fira Code", monospace;
   text-shadow: -1px -1px 1px rgba(255,255,255,.1), 1px 1px 1px rgba(0,0,0,.5);
- background-color: transparent;
   top: -46px;
   left: 0px;
   position: relative;
@@ -150,7 +149,7 @@ body {
   font-size: 36px;
   font-family: "Fira Code", monospace;
   top: -52px;
-  left: 1px;
+  left: -1px;
   color: whitesmoke;
   text-shadow: -1px -1px 1px rgba(255,255,255,.1), 1px 1px 1px rgba(0,0,0,.5);
   position: relative;
