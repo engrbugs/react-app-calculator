@@ -5,6 +5,7 @@ import logo from "./logo.svg";
 import "./App.css";
 import Converter from "./Converter";
 
+
 const SVG = (props) => (
   // Thank you, https://squircley.app !!!
   <svg
@@ -74,16 +75,18 @@ function App() {
   const [currentDisplay, setCurrentDisplay] = useState("0");
   const [formula, setFormula] = useState(String.fromCharCode(160));
 
-  function reset() {
-    setCurrentDisplay("0");
-    setFormula(String.fromCharCode(160));
+  function resetAll(e, displayScreen="0", formulaDisplay=String.fromCharCode(160)) {
+    e.preventDefault();
+    setCurrentDisplay(displayScreen);
+    setFormula(formulaDisplay);
   }
 
   function handleNumbers(e) {
+    e.preventDefault();
     let needReset = false;
     if (formula.substr(formula.length - 1) === "=") {
       needReset = true;
-      reset();
+      resetAll(e);
     }
     const value = e.target.innerText || e.target.id;
     switch (currentDisplay) {
@@ -115,55 +118,85 @@ function App() {
   }
 
   function mathematicsOperations(e) {
-    // let needReset = false;
-    // if (formula.substr(formula.length-1)==='=') {
-    //   needReset = true;
-    //   reset();
-    // }
-    console.log('formula len:', formula.length);
+    e.preventDefault();
+    let needReset = (formula.substr(formula.length-1)==='=') && true
     let putZero = currentDisplay==='-' && true;
-    let isNegative = (currentDisplay.substr(0, 1) === "-") && true;
+    let isNegative;
+    try {
+      isNegative = (currentDisplay.substr(0, 1) === "-") && true;
+    }
+    catch(err) {
+      isNegative = false;
+    }
     if (!/LIMIT ERROR/.test(currentDisplay)) {
       formula === String.fromCharCode(160) && setFormula(""); // remove the empty char.
       const value = e.target.innerText ? e.target.innerText : e.target.id;
       switch (value) {
         case "÷":
+          if (needReset) {
+            resetAll(e,'/',currentDisplay);
+            return;
+          };
           !/\+|x|\/|—/.test(currentDisplay) &&
-            setFormula(
-              `${formula}${isNegative ? "(" : ""}${currentDisplay}${
-                isNegative ? ")" : ""
-              }`
-            );
+          setFormula(((isNegative) && (currentDisplay.length===1)) ? formula+'0' : 
+          `${formula}${isNegative ? "(" : ""}${currentDisplay}${
+            isNegative ? ")" : ""
+          }`
+          );
           setCurrentDisplay("/");
           break;
         case "×":
+          if (needReset) {
+            resetAll(e,'x',currentDisplay);
+            return;
+          };
           !/\+|x|\/|—/.test(currentDisplay) &&
-            setFormula(
-              `${formula}${isNegative ? "(" : ""}${currentDisplay}${
-                isNegative ? ")" : ""
-              }`
-            );
+          setFormula(((isNegative) && (currentDisplay.length===1)) ? formula+'0' : 
+          `${formula}${isNegative ? "(" : ""}${currentDisplay}${
+            isNegative ? ")" : ""
+          }`
+          );
           setCurrentDisplay("x");
           break;
         case "+":
-          !/\+|x|\/|—/.test(currentDisplay) &&
-            setFormula(
-              `${formula}${isNegative ? "(" : ""}${currentDisplay}${
+          if (needReset) {
+            resetAll(e,'+',currentDisplay);
+            return;
+          };
+          if (!/\+|x|\/|—/.test(currentDisplay)){
+            if ((/\+|\*|\/|-/.test(formula.substr(formula.length-1))) && (/\+|x|\/|\-/.test(currentDisplay))) {
+              setFormula(formula.substr(0,formula.length-1));
+              console.log('should remove 1 in formula')
+            } else if ((isNegative) && (currentDisplay.length===1)) {
+              if (isNegative) {
+                if (currentDisplay==='-') {
+                  setCurrentDisplay('0');}
+              } // remove negativity
+                
+            } else {
+              setFormula(`${formula}${isNegative ? "(" : ""}${currentDisplay}${
                 isNegative ? ")" : ""
-              }`
-            );
+              }`);
+              
+            }; 
+          }
           setCurrentDisplay("+");
           break;
         case "—":
+          if (needReset) {
+            resetAll(e,'—',currentDisplay);
+            return;
+          };
           if (/\+|x|\/|—/.test(currentDisplay)) {
-            console.log('negative mode');
-            // negative value
-            if (currentDisplay==='x') {
+            if (/\+|\*|\/|-/.test(formula.substr(formula.length-1))) {
+              setFormula(formula.substr(0,formula.length-1));
+            } else if (currentDisplay==='x') {
               setFormula(formula + '*');
             } else if (currentDisplay==='—') {
               setFormula(formula + '-');
             } else {
               setFormula(formula + currentDisplay);
+              
             }
             setCurrentDisplay("-");
           } else if (isNegative) { // remove negativity
@@ -182,39 +215,38 @@ function App() {
         default:
       }
     }
-    console.log('formula len:', formula.length);
   }
 
   function maxLimitError() {
     setCurrentDisplay("LIMIT ERROR");
   }
 
-  function inputDot() {
+  function inputDot(e) {
+    e.preventDefault();
     if (formula.substr(formula.length - 1) === "=") {
-      reset();
+      resetAll(e);
     } else if (!/\.|LIMIT ERROR/.test(currentDisplay)) {
       setCurrentDisplay(currentDisplay + ".");
     }
   }
 
-  function evaluate() {
-    console.log('formula:', formula, formula.length);
-    console.log('formula:', formula.trim(), formula.length); // len here is 3 only 2 lanf dapat
-    console.log('currentdisplau:', currentDisplay);
+  function evaluate(e) {
+    e.preventDefault();
     
     if (formula.substr(formula.length - 1) === "=") {
-    } else if (!/\+|x|\/|—|-|LIMIT ERROR/.test(currentDisplay)) {
+    } else if (!/\+|x|\/|—|LIMIT ERROR/.test(currentDisplay)) {
       let isNegative = currentDisplay.substr(0, 1) === "-" && true;
-      let equation = `${formula}${isNegative ? "(" : ""}${currentDisplay}${
+      let equation = ((isNegative) && (currentDisplay.length===1)) ? formula+'0' : 
+      `${formula}${isNegative ? "(" : ""}${currentDisplay}${
         isNegative ? ")" : ""
       }`
-      let answer = eval(equation);
       console.log('equation:', equation);
-      console.log('answer:', answer);
-      setCurrentDisplay(answer);
+      let answer = eval(equation);
+      setCurrentDisplay(''+answer);
       setFormula(equation + "=");
     } else if (!/LIMIT ERROR/.test(currentDisplay)) {
-      setCurrentDisplay(eval(formula));// error here 9- * =
+      console.log('equation:', formula);
+      setCurrentDisplay(''+eval(formula));
       setFormula(formula + "=");
     }
   }
@@ -229,7 +261,7 @@ function App() {
       <div className="divider-2">
         <span></span>{" "}
       </div>
-      <Special id="AC" skills={reset} />
+      <Special id="AC" skills={resetAll} />
       <Special id="Nan" />
       <Special id="Nan" />
       <MathButton id="÷" function={mathematicsOperations} />
