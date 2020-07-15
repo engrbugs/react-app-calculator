@@ -1,3 +1,4 @@
+/* eslint-disable no-eval */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState, useEffect } from "react";
 import logo from "./logo.svg";
@@ -28,7 +29,11 @@ const SVG = (props) => (
 
 function Numbers(props) {
   return (
-    <div className="button-center" id={Converter(props.id)} onClick={props.numbers}>
+    <div
+      className="button-center"
+      id={Converter(props.id)}
+      onClick={props.numbers}
+    >
       <SVG stroke="#b2bec3" fill="#FAFAFA" id={props.id} />
       <a>{props.id}</a>
     </div>
@@ -67,7 +72,7 @@ function MathButton(props) {
 
 function App() {
   const [currentDisplay, setCurrentDisplay] = useState("0");
-  var [formula, setFormula] = useState(String.fromCharCode(160));
+  const [formula, setFormula] = useState(String.fromCharCode(160));
 
   function reset() {
     setCurrentDisplay("0");
@@ -76,35 +81,34 @@ function App() {
 
   function handleNumbers(e) {
     let needReset = false;
-    if (formula.substr(formula.length-1)==='=') {
+    if (formula.substr(formula.length - 1) === "=") {
       needReset = true;
       reset();
-    }  
+    }
 
-
-    const value = e.target.innerText ? e.target.innerText : e.target.id;
+    const value = e.target.innerText || e.target.id;
     switch (currentDisplay) {
-      case '0':
-        setCurrentDisplay(value)
+      case "0":
+        setCurrentDisplay(value);
         break;
-      case '/':
+      case "/":
         setFormula(formula + currentDisplay);
         setCurrentDisplay(value);
         break;
-      case 'x':
-        setFormula(formula + '*');
+      case "x":
+        setFormula(formula + "*");
         setCurrentDisplay(value);
         break;
-      case '—':
-        setFormula(formula + '-');
+      case "—":
+        setFormula(formula + "-");
         setCurrentDisplay(value);
         break;
-      case ('+'):
+      case "+":
         setFormula(formula + currentDisplay);
         setCurrentDisplay(value);
         break;
       default:
-        setCurrentDisplay((needReset) ? value : currentDisplay + value);
+        setCurrentDisplay(needReset ? value : currentDisplay + value);
     }
     if (currentDisplay.length > 9) {
       maxLimitError();
@@ -117,25 +121,53 @@ function App() {
     //   needReset = true;
     //   reset();
     // }
+    let isNegative = currentDisplay.substr(0, 1) === "-" && true;
     if (!/LIMIT ERROR/.test(currentDisplay)) {
-      (formula===String.fromCharCode(160)) && setFormula(''); // remove the empty char.
+      formula === String.fromCharCode(160) && setFormula(""); // remove the empty char.
       const value = e.target.innerText ? e.target.innerText : e.target.id;
       switch (value) {
-        case '÷':
-          (!/\+|x|\//.test(currentDisplay)) && setFormula(formula + currentDisplay);
-          setCurrentDisplay('/');
+        case "÷":
+          !/\+|x|\//.test(currentDisplay) &&
+            setFormula(
+              `${formula}${isNegative ? "(" : ""}${currentDisplay}${
+                isNegative ? ")" : ""
+              }`
+            );
+          setCurrentDisplay("/");
           break;
-        case '×':
-          (!/\+|x|\//.test(currentDisplay)) && setFormula(formula + currentDisplay);
-          setCurrentDisplay('x');
+        case "×":
+          !/\+|x|\//.test(currentDisplay) &&
+            setFormula(
+              `${formula}${isNegative ? "(" : ""}${currentDisplay}${
+                isNegative ? ")" : ""
+              }`
+            );
+          setCurrentDisplay("x");
           break;
-        case '—':
-          setFormula(formula + currentDisplay);
-          setCurrentDisplay('—');
+        case "+":
+          !/\+|x|\//.test(currentDisplay) &&
+            setFormula(
+              `${formula}${isNegative ? "(" : ""}${currentDisplay}${
+                isNegative ? ")" : ""
+              }`
+            );
+          setCurrentDisplay("+");
           break;
-        case '+':
-          (!/\+|x|\//.test(currentDisplay)) && setFormula(formula + currentDisplay);
-          setCurrentDisplay('+');
+        case "—":
+          if (/\+|x|\/|—/.test(currentDisplay)) {
+            // negative value
+            if (currentDisplay==='x') {
+              setFormula(formula + '*');
+            } else if (currentDisplay==='—') {
+              setFormula(formula + '-');
+            } else {
+              setFormula(formula + currentDisplay);
+            }
+            setCurrentDisplay("-");
+          } else {
+            setFormula(formula + currentDisplay);
+            setCurrentDisplay("—");
+          }
           break;
         default:
       }
@@ -147,22 +179,30 @@ function App() {
   }
 
   function inputDot() {
-    if (formula.substr(formula.length-1)==='=') {
+    if (formula.substr(formula.length - 1) === "=") {
       reset();
-      return;
-    }
-    if (!/\.|LIMIT ERROR/.test(currentDisplay)) {
+    } else if (!/\.|LIMIT ERROR/.test(currentDisplay)) {
       setCurrentDisplay(currentDisplay + ".");
     }
   }
+
   function evaluate() {
-    if (formula.substr(formula.length-1)==='=') {
+    if (formula.substr(formula.length - 1) === "=") {
     } else if (!/\+|x|\/|—|LIMIT ERROR/.test(currentDisplay)) {
-      setCurrentDisplay(eval(formula+currentDisplay));
-      setFormula(formula + currentDisplay + '=')
+      let isNegative = currentDisplay.substr(0, 1) === "-" && true;
+      let equation = `${formula}${isNegative ? "(" : ""}${currentDisplay}${
+        isNegative ? ")" : ""
+      }`
+      console.log(formula);
+      console.log(currentDisplay);
+      console.log(equation);
+      setCurrentDisplay(
+        eval(equation)
+      );
+      setFormula(equation + "=");
     } else if (!/LIMIT ERROR/.test(currentDisplay)) {
       setCurrentDisplay(eval(formula));
-      setFormula(formula + '=')
+      setFormula(formula + "=");
     }
   }
   return (
@@ -195,7 +235,7 @@ function App() {
       <Numbers id="." numbers={inputDot} />
       <Numbers id="0" numbers={handleNumbers} />
       <Special id="Nan" />
-      <MathButton id="=" function={evaluate}/>
+      <MathButton id="=" function={evaluate} />
     </div>
   );
 }
