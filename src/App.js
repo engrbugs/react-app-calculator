@@ -27,13 +27,13 @@ const SVG = (props) => (
 );
 
 function Numbers(props) {
-  return ( // stroke="#00A9BD"
+  return (
     <div
       className="button-center"
       id={Converter(props.id)}
       onClick={props.numbers}
     >
-      <SVG fill="#dfe4ea"  id={props.id} /> 
+      <SVG fill="#dfe4ea" id={props.id} />
       <a>{props.id}</a>
     </div>
   );
@@ -72,20 +72,33 @@ function MathButton(props) {
 function App() {
   const [currentDisplay, setCurrentDisplay] = useState("0");
   const [formula, setFormula] = useState(String.fromCharCode(160));
-  // getter setter for formula -- . bug not included in mathematical operations
-  // decimal too long
+  const [displayFormulaGS, setDisplayFormulaGS] = useState(String.fromCharCode(160));
+  const formulaGS = {
+    get hello() {
+      return displayFormulaGS;
+    },
+    set toDisplay(equation) {
+      setDisplayFormulaGS(equation);
+    },
+    trimLast: function () {
+      setDisplayFormulaGS(displayFormulaGS.substr(0, displayFormulaGS.length - 1));
+    },
+    clear: function () {
+      setDisplayFormulaGS(String.fromCharCode(160));
+    },
+  };
 
-  function resetAll(
-    e,
-    displayScreen = "0",
-    formulaDisplay = String.fromCharCode(160)
-  ) {
-    try {
-      e.preventDefault();
-    } catch (err) {}
-    setCurrentDisplay(displayScreen);
-    setFormula(formulaDisplay);
-  }
+  const resetAll = useCallback(
+    (e, displayScreen = "0", formulaDisplay = String.fromCharCode(160)) => {
+      try {
+        e.preventDefault();
+      } catch (err) {}
+      setCurrentDisplay(displayScreen);
+      setFormula(formulaDisplay);
+      formulaGS.clear();
+    },
+    [formulaGS]
+  );
 
   const handleNumbers = useCallback(
     (e, def = undefined) => {
@@ -122,7 +135,7 @@ function App() {
         maxLimitError();
       }
     },
-    [formula, currentDisplay]
+    [formula, currentDisplay, resetAll]
   );
 
   const mathematicsOperations = useCallback(
@@ -234,7 +247,7 @@ function App() {
         }
       }
     },
-    [formula, currentDisplay]
+    [formula, currentDisplay, resetAll]
   );
 
   function maxLimitError() {
@@ -250,7 +263,7 @@ function App() {
         setCurrentDisplay(currentDisplay + ".");
       }
     },
-    [formula, currentDisplay]
+    [formula, currentDisplay, resetAll]
   );
 
   const evaluate = useCallback(
@@ -347,7 +360,7 @@ function App() {
         default:
       }
     },
-    [handleNumbers, mathematicsOperations, evaluate, inputDot]
+    [handleNumbers, mathematicsOperations, evaluate, inputDot, resetAll]
   );
 
   useEffect(() => {
@@ -362,7 +375,7 @@ function App() {
   return (
     <div className="calculator">
       <div id="equation" className="equation">
-        {formula}
+        {person}
       </div>
       <div id="display" className="display">
         {currentDisplay}
