@@ -27,13 +27,13 @@ const SVG = (props) => (
 );
 
 function Numbers(props) {
-  return (
+  return ( // stroke="#00A9BD"
     <div
       className="button-center"
       id={Converter(props.id)}
       onClick={props.numbers}
     >
-      <SVG stroke="#b2bec3" fill="#FAFAFA" id={props.id} />
+      <SVG fill="#dfe4ea"  id={props.id} /> 
       <a>{props.id}</a>
     </div>
   );
@@ -60,8 +60,8 @@ function MathButton(props) {
       onClick={props.function}
     >
       <SVG
-        stroke={props.id === "=" ? "#c8d6e5" : "#74b9ff"}
-        fill={props.id === "=" ? "#4185f4" : "#FAFAFA"}
+        stroke={props.id === "=" ? "#c8d6e5" : ""}
+        fill={props.id === "=" ? "#4185f4" : "#dfe4ea"}
         id={props.keyCode}
       />
       <a>{props.id}</a>
