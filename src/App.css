@@ -223,6 +223,7 @@ body {
   transition: transform 0.15s linear;
 }
 
+.button-center-active,
 .button-math-equals:active,
 .button-math:active,
 .button-special:active,
