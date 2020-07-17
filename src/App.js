@@ -71,9 +71,10 @@ function MathButton(props) {
 
 function App() {
   const [currentDisplay, setCurrentDisplay] = useState("0");
-  const [displayFormulaGS, setDisplayFormulaGS] = useState(String.fromCharCode(160));
+  const [displayFormulaGS, setDisplayFormulaGS] = useState(
+    String.fromCharCode(160)
+  );
   const formulaGS = {
-
     get get() {
       return displayFormulaGS;
     },
@@ -87,37 +88,46 @@ function App() {
      * @param {string} numberOrOperation
      */
     append: function (numberOrOperation, appendEqualsOnTheEnd = false) {
+      const MAXCHAR = 28;
       var tempVal = displayFormulaGS;
-      if (tempVal===String.fromCharCode(160)) {
-        tempVal = '';
+      if (tempVal === String.fromCharCode(160)) {
+        tempVal = "";
       }
       switch (numberOrOperation) {
         case "/":
-          tempVal += "/";
+          if (!this.isInMathOperation()) tempVal += "/";
           break;
         case "x":
-          tempVal += "*";
+          if (!this.isInMathOperation()) tempVal += "*";
           break;
         case "—":
-          tempVal += "-";
+          if (!this.isInMathOperation()) tempVal += "-";
           break;
         case "+":
-          tempVal += "+";
+          if (!this.isInMathOperation()) tempVal += "+";
           break;
         case "-":
-        case ".":
+        case "0.":
           break;
         default:
           let isNegative = numberOrOperation.substr(0, 1) === "-" && true;
-          tempVal += `${isNegative ? "(" : ""}${numberOrOperation}${isNegative ? ")" : ""}`;
-         
-
+          tempVal += `${isNegative ? "(" : ""}${numberOrOperation}${
+            isNegative ? ")" : ""
+          }`;
       }
-      setDisplayFormulaGS(tempVal+(appendEqualsOnTheEnd?'=':''));
+      let cuttedTempVal;
+      if (tempVal.length > MAXCHAR) {
+        cuttedTempVal = "..." + tempVal.substr(tempVal.length - MAXCHAR);
+      }
+      setDisplayFormulaGS(
+        (cuttedTempVal || tempVal) + (appendEqualsOnTheEnd ? "=" : "")
+      );
       return tempVal;
     },
     undo: function () {
-      setDisplayFormulaGS(displayFormulaGS.substr(0, displayFormulaGS.length - 1));
+      setDisplayFormulaGS(
+        displayFormulaGS.substr(0, displayFormulaGS.length - 1)
+      );
     },
     clear: function () {
       setDisplayFormulaGS(String.fromCharCode(160));
@@ -126,13 +136,14 @@ function App() {
       return displayFormulaGS.substr(displayFormulaGS.length - 1) === "=";
     },
     putEquals: function () {
-      setDisplayFormulaGS(displayFormulaGS+"=");
+      setDisplayFormulaGS(displayFormulaGS + "=");
     },
     isEmpty: displayFormulaGS === String.fromCharCode(160),
     isInMathOperation: function () {
-      return /\+|\*|\/|-/.test(displayFormulaGS.substr(displayFormulaGS.length - 1));
+      return /\+|\*|\/|-/.test(
+        displayFormulaGS.substr(displayFormulaGS.length - 1)
+      );
     },
-  
   };
 
   const resetAll = useCallback(
@@ -142,11 +153,10 @@ function App() {
       } catch (err) {}
       setCurrentDisplay(displayScreen);
       if (formulaDisplay) {
-        formulaGS.toDisplay=formulaDisplay;
+        formulaGS.toDisplay = formulaDisplay;
       } else {
         formulaGS.clear();
-      };
-      
+      }
     },
     [formulaGS]
   );
@@ -174,9 +184,9 @@ function App() {
           formulaGS.append(currentDisplay);
           setCurrentDisplay(value);
           break;
-          // setFormula(formula + currentDisplay);
-          // setCurrentDisplay(value);
-          // break;
+        // setFormula(formula + currentDisplay);
+        // setCurrentDisplay(value);
+        // break;
         default:
           setCurrentDisplay(needReset ? value : currentDisplay + value);
       }
@@ -209,13 +219,6 @@ function App() {
               return;
             }
             formulaGS.append(currentDisplay);
-            // !/\+|x|\/|—/.test(currentDisplay) && formulaGS.append(currentDisplay);
-              // setFormula(
-              //   isNegative && currentDisplay.length === 1
-              //     ? formula + "0"
-                   
-              // );
-              
             setCurrentDisplay("/");
             break;
           case "×":
@@ -232,8 +235,10 @@ function App() {
               return;
             }
             if (!/\+|x|\/|—/.test(currentDisplay)) {
-              if (formulaGS.isInMathOperation &&
-                /\+|x|\/|-/.test(currentDisplay)) {
+              if (
+                formulaGS.isInMathOperation &&
+                /\+|x|\/|-/.test(currentDisplay)
+              ) {
                 formulaGS.undo();
               } else {
                 formulaGS.append(currentDisplay);
@@ -248,10 +253,11 @@ function App() {
             }
             if (/\+|x|\/|—/.test(currentDisplay)) {
               if (formulaGS.isInMathOperation) {
-                formulaGS.undo();
-              } else {
                 formulaGS.append(currentDisplay);
-              };
+                //   formulaGS.undo();
+                // } else {
+                //   formulaGS.append(currentDisplay);
+              }
               setCurrentDisplay("-");
             } else if (isNegative) {
               // remove negativity
@@ -278,6 +284,14 @@ function App() {
     setCurrentDisplay("LIMIT ERROR");
   }
 
+  const backSpace = useCallback((e) => {
+    if (currentDisplay.length > 1) {
+      setCurrentDisplay(currentDisplay.substr(0, currentDisplay.length - 1));
+    } else {
+      setCurrentDisplay("0");
+    }
+  },[currentDisplay]);
+
   const inputDot = useCallback(
     (e) => {
       e.preventDefault();
@@ -292,14 +306,27 @@ function App() {
 
   const evaluate = useCallback(
     (e) => {
+      const MAXCHAR = 9;
       e.preventDefault();
       if (formulaGS.hasEquals()) {
-      } else if (!/\+|x|\/|—|LIMIT ERROR/.test(currentDisplay)) {
-        setCurrentDisplay("" + eval(formulaGS.append(currentDisplay, true)));
-      } else if (!/LIMIT ERROR/.test(currentDisplay)) {
-        console.log("equation:", formulaGS.get);
-        setCurrentDisplay("" + eval(formulaGS.get));
-        formulaGS.putEquals();
+        return;
+      }
+      if (!/LIMIT ERROR/.test(currentDisplay)) {
+        try {
+          let answer = eval(formulaGS.append(currentDisplay, true));
+          if (answer > 999999999) {
+            maxLimitError();
+            return;
+          }
+          setCurrentDisplay(
+            ("" + answer).length > MAXCHAR
+              ? ("" + answer).substr(0, MAXCHAR)
+              : "" + answer
+          );
+        } catch (err) {
+          maxLimitError();
+          return;
+        }
       }
     },
     [formulaGS, currentDisplay]
@@ -371,10 +398,16 @@ function App() {
           resetAll(e);
           setTimeout(() => el.classList.toggle("button-center-active"), 280);
           break;
+        case "Backspace":
+          el = document.getElementById(e.key);
+          el.classList.toggle("button-center-active");
+          backSpace();
+          setTimeout(() => el.classList.toggle("button-center-active"), 280);
+          break;
         default:
       }
     },
-    [handleNumbers, mathematicsOperations, evaluate, inputDot, resetAll]
+    [handleNumbers, mathematicsOperations, evaluate, inputDot, resetAll, backSpace]
   );
 
   useEffect(() => {
@@ -399,7 +432,7 @@ function App() {
       </div>
       <Special id="AC" skills={resetAll} keyCode="Escape" />
       <Special id="Nan" />
-      <Special id="Nan" />
+      <Special id="B" skills={backSpace} keyCode="Backspace" />
       <MathButton id="÷" function={mathematicsOperations} keyCode="÷" />
       <Numbers id="7" numbers={handleNumbers} />
       <Numbers id="8" numbers={handleNumbers} />
