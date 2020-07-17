@@ -16,8 +16,8 @@
 
 * {
   box-sizing: border-box;
-  -webkit-tap-highlight-color: rgba(0,0,0,0);
--webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .App {
@@ -118,13 +118,11 @@ body {
   font-size: 28px;
   color: #30336b;
   font-family: "Fira Code", monospace;
-  /* text-shadow: -1px -1px 1px rgba(255,255,255,.1), 1px 1px 1px rgba(0,0,0,.5); */
   top: -46px;
   left: 0px;
   position: relative;
   transition: transform 0.08s linear;
 }
-
 
 .button-math-equals {
   display: flex;
@@ -153,11 +151,11 @@ body {
   top: -52px;
   left: -1px;
   color: whitesmoke;
-  text-shadow: -1px -1px 1px rgba(255,255,255,.1), 1px 1px 1px rgba(0,0,0,.5);
+  text-shadow: -1px -1px 1px rgba(255, 255, 255, 0.1),
+    1px 1px 1px rgba(0, 0, 0, 0.5);
   position: relative;
   transition: transform 0.15s linear;
 }
-
 
 .button-math {
   display: flex;
@@ -183,7 +181,7 @@ body {
   width: fit-content;
   font-size: 28px;
   font-family: "Fira Code", monospace;
-  
+
   top: -46px;
   left: 0px;
   color: #4185f4;
@@ -215,7 +213,8 @@ body {
   width: fit-content;
   font-size: 28px;
   font-family: "Fira Code", monospace;
-  text-shadow: -1px -1px 1px rgba(255,255,255,.1), 1px 1px 1px rgba(0,0,0,.5);
+  text-shadow: -1px -1px 1px rgba(255, 255, 255, 0.1),
+    1px 1px 1px rgba(0, 0, 0, 0.5);
   top: -46px;
   left: 0px;
   color: white;
@@ -223,6 +222,36 @@ body {
   transition: transform 0.15s linear;
 }
 
+.button-special-backspace {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  text-align: center;
+
+  text-decoration: none;
+  display: inline-block;
+
+  stroke-width: 3%;
+  /* outline: 2px solid blue; */
+  transition: transform 0.08s linear;
+  margin: 0;
+  width: 60px;
+  height: 60px;
+}
+
+.button-special-backspace a {
+  width: fit-content;
+  font-size: 22px;
+  color: #ff6b81;
+  font-family: "Fira Code", monospace;
+  top: -40px;
+  left: -1px;
+  position: relative;
+  transition: transform 0.08s linear;
+}
+
+.button-special-backspace:active,
 .button-center-active,
 .button-math-equals:active,
 .button-math:active,

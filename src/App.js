@@ -40,14 +40,20 @@ function Numbers(props) {
 }
 
 function Special(props) {
+  var liClasses = (props.keyCode === "Backspace" ? "button-special-backspace " : "button-special ")
+  + (props.id === "Nan" && "nan");
   return (
     <div
-      className={`button-special ${props.id === "Nan" && "nan"}`}
+      className={liClasses}
       id={Converter(props.id)}
       onClick={props.skills}
     >
-      <SVG stroke="#fab1a0" fill="#d63031" id={props.keyCode} />
-      <a>{props.id}</a>
+      <SVG stroke={props.id==="Backspace"?'':"#fab1a0"}
+      fill={props.id==="Backspace"?'#dfe4ea':"#d63031"}
+      id={props.keyCode} />
+        <a>{props.keyCode === "Backspace" ?
+        <i class="fas fa-backspace"></i>
+         : props.id}</a>
     </div>
   );
 }
@@ -62,7 +68,7 @@ function MathButton(props) {
       <SVG
         stroke={props.id === "=" ? "#c8d6e5" : ""}
         fill={props.id === "=" ? "#4185f4" : "#dfe4ea"}
-        id={props.keyCode}
+        id={props.id}
       />
       <a>{props.id}</a>
     </div>
@@ -164,10 +170,6 @@ function App() {
   const handleNumbers = useCallback(
     (e, def = undefined) => {
       let needReset = false;
-      // if (formula.substr(formula.length - 1) === "=") {
-      //   needReset = true;
-      //   resetAll(e);
-      // }
       if (formulaGS.hasEquals()) {
         needReset = true;
         resetAll(e);
@@ -184,9 +186,6 @@ function App() {
           formulaGS.append(currentDisplay);
           setCurrentDisplay(value);
           break;
-        // setFormula(formula + currentDisplay);
-        // setCurrentDisplay(value);
-        // break;
         default:
           setCurrentDisplay(needReset ? value : currentDisplay + value);
       }
@@ -199,7 +198,6 @@ function App() {
 
   const mathematicsOperations = useCallback(
     (e, def = undefined) => {
-      // let needReset = formula.substr(formula.length - 1) === "=" && true;
       let needReset = formulaGS.hasEquals();
       let isNegative;
       try {
@@ -208,10 +206,7 @@ function App() {
         isNegative = false;
       }
       if (!/LIMIT ERROR/.test(currentDisplay)) {
-        // formula === String.fromCharCode(160) && setFormula(""); // remove the empty char.
-
         let value = def || e.target.innerText || e.target.id;
-
         switch (value) {
           case "÷":
             if (needReset) {
@@ -254,9 +249,6 @@ function App() {
             if (/\+|x|\/|—/.test(currentDisplay)) {
               if (formulaGS.isInMathOperation) {
                 formulaGS.append(currentDisplay);
-                //   formulaGS.undo();
-                // } else {
-                //   formulaGS.append(currentDisplay);
               }
               setCurrentDisplay("-");
             } else if (isNegative) {
@@ -432,7 +424,7 @@ function App() {
       </div>
       <Special id="AC" skills={resetAll} keyCode="Escape" />
       <Special id="Nan" />
-      <Special id="B" skills={backSpace} keyCode="Backspace" />
+      <Special id="Backspace" skills={backSpace} keyCode="Backspace" />
       <MathButton id="÷" function={mathematicsOperations} keyCode="÷" />
       <Numbers id="7" numbers={handleNumbers} />
       <Numbers id="8" numbers={handleNumbers} />
