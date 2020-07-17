@@ -71,31 +71,82 @@ function MathButton(props) {
 
 function App() {
   const [currentDisplay, setCurrentDisplay] = useState("0");
-  const [formula, setFormula] = useState(String.fromCharCode(160));
   const [displayFormulaGS, setDisplayFormulaGS] = useState(String.fromCharCode(160));
   const formulaGS = {
-    get hello() {
+
+    get get() {
       return displayFormulaGS;
     },
+    /**
+     * @param {string} equation
+     */
     set toDisplay(equation) {
       setDisplayFormulaGS(equation);
     },
-    trimLast: function () {
+    /**
+     * @param {string} numberOrOperation
+     */
+    append: function (numberOrOperation, appendEqualsOnTheEnd = false) {
+      var tempVal = displayFormulaGS;
+      if (tempVal===String.fromCharCode(160)) {
+        tempVal = '';
+      }
+      switch (numberOrOperation) {
+        case "/":
+          tempVal += "/";
+          break;
+        case "x":
+          tempVal += "*";
+          break;
+        case "—":
+          tempVal += "-";
+          break;
+        case "+":
+          tempVal += "+";
+          break;
+        case "-":
+        case ".":
+          break;
+        default:
+          let isNegative = numberOrOperation.substr(0, 1) === "-" && true;
+          tempVal += `${isNegative ? "(" : ""}${numberOrOperation}${isNegative ? ")" : ""}`;
+         
+
+      }
+      setDisplayFormulaGS(tempVal+(appendEqualsOnTheEnd?'=':''));
+      return tempVal;
+    },
+    undo: function () {
       setDisplayFormulaGS(displayFormulaGS.substr(0, displayFormulaGS.length - 1));
     },
     clear: function () {
       setDisplayFormulaGS(String.fromCharCode(160));
     },
+    hasEquals: function () {
+      return displayFormulaGS.substr(displayFormulaGS.length - 1) === "=";
+    },
+    putEquals: function () {
+      setDisplayFormulaGS(displayFormulaGS+"=");
+    },
+    isEmpty: displayFormulaGS === String.fromCharCode(160),
+    isInMathOperation: function () {
+      return /\+|\*|\/|-/.test(displayFormulaGS.substr(displayFormulaGS.length - 1));
+    },
+  
   };
 
   const resetAll = useCallback(
-    (e, displayScreen = "0", formulaDisplay = String.fromCharCode(160)) => {
+    (e, displayScreen = "0", formulaDisplay = undefined) => {
       try {
         e.preventDefault();
       } catch (err) {}
       setCurrentDisplay(displayScreen);
-      setFormula(formulaDisplay);
-      formulaGS.clear();
+      if (formulaDisplay) {
+        formulaGS.toDisplay=formulaDisplay;
+      } else {
+        formulaGS.clear();
+      };
+      
     },
     [formulaGS]
   );
@@ -103,7 +154,11 @@ function App() {
   const handleNumbers = useCallback(
     (e, def = undefined) => {
       let needReset = false;
-      if (formula.substr(formula.length - 1) === "=") {
+      // if (formula.substr(formula.length - 1) === "=") {
+      //   needReset = true;
+      //   resetAll(e);
+      // }
+      if (formulaGS.hasEquals()) {
         needReset = true;
         resetAll(e);
       }
@@ -113,21 +168,15 @@ function App() {
           setCurrentDisplay(value);
           break;
         case "/":
-          setFormula(formula + currentDisplay);
-          setCurrentDisplay(value);
-          break;
         case "x":
-          setFormula(formula + "*");
-          setCurrentDisplay(value);
-          break;
         case "—":
-          setFormula(formula + "-");
-          setCurrentDisplay(value);
-          break;
         case "+":
-          setFormula(formula + currentDisplay);
+          formulaGS.append(currentDisplay);
           setCurrentDisplay(value);
           break;
+          // setFormula(formula + currentDisplay);
+          // setCurrentDisplay(value);
+          // break;
         default:
           setCurrentDisplay(needReset ? value : currentDisplay + value);
       }
@@ -135,12 +184,13 @@ function App() {
         maxLimitError();
       }
     },
-    [formula, currentDisplay, resetAll]
+    [currentDisplay, resetAll, formulaGS]
   );
 
   const mathematicsOperations = useCallback(
     (e, def = undefined) => {
-      let needReset = formula.substr(formula.length - 1) === "=" && true;
+      // let needReset = formula.substr(formula.length - 1) === "=" && true;
+      let needReset = formulaGS.hasEquals();
       let isNegative;
       try {
         isNegative = currentDisplay.substr(0, 1) === "-" && true;
@@ -148,27 +198,24 @@ function App() {
         isNegative = false;
       }
       if (!/LIMIT ERROR/.test(currentDisplay)) {
-        formula === String.fromCharCode(160) && setFormula(""); // remove the empty char.
-        let value;
-        if (def) {
-          value = def;
-        } else {
-          value = e.target.innerText ? e.target.innerText : e.target.id;
-        }
+        // formula === String.fromCharCode(160) && setFormula(""); // remove the empty char.
+
+        let value = def || e.target.innerText || e.target.id;
+
         switch (value) {
           case "÷":
             if (needReset) {
               resetAll(e, "/", currentDisplay);
               return;
             }
-            !/\+|x|\/|—/.test(currentDisplay) &&
-              setFormula(
-                isNegative && currentDisplay.length === 1
-                  ? formula + "0"
-                  : `${formula}${isNegative ? "(" : ""}${currentDisplay}${
-                      isNegative ? ")" : ""
-                    }`
-              );
+            formulaGS.append(currentDisplay);
+            // !/\+|x|\/|—/.test(currentDisplay) && formulaGS.append(currentDisplay);
+              // setFormula(
+              //   isNegative && currentDisplay.length === 1
+              //     ? formula + "0"
+                   
+              // );
+              
             setCurrentDisplay("/");
             break;
           case "×":
@@ -176,14 +223,7 @@ function App() {
               resetAll(e, "x", currentDisplay);
               return;
             }
-            !/\+|x|\/|—/.test(currentDisplay) &&
-              setFormula(
-                isNegative && currentDisplay.length === 1
-                  ? formula + "0"
-                  : `${formula}${isNegative ? "(" : ""}${currentDisplay}${
-                      isNegative ? ")" : ""
-                    }`
-              );
+            formulaGS.append(currentDisplay);
             setCurrentDisplay("x");
             break;
           case "+":
@@ -192,23 +232,11 @@ function App() {
               return;
             }
             if (!/\+|x|\/|—/.test(currentDisplay)) {
-              if (
-                /\+|\*|\/|-/.test(formula.substr(formula.length - 1)) &&
-                /\+|x|\/|-/.test(currentDisplay)
-              ) {
-                setFormula(formula.substr(0, formula.length - 1));
-              } else if (isNegative && currentDisplay.length === 1) {
-                if (isNegative) {
-                  if (currentDisplay === "-") {
-                    setCurrentDisplay("0");
-                  }
-                } // remove negative
+              if (formulaGS.isInMathOperation &&
+                /\+|x|\/|-/.test(currentDisplay)) {
+                formulaGS.undo();
               } else {
-                setFormula(
-                  `${formula}${isNegative ? "(" : ""}${currentDisplay}${
-                    isNegative ? ")" : ""
-                  }`
-                );
+                formulaGS.append(currentDisplay);
               }
             }
             setCurrentDisplay("+");
@@ -219,15 +247,11 @@ function App() {
               return;
             }
             if (/\+|x|\/|—/.test(currentDisplay)) {
-              if (/\+|\*|\/|-/.test(formula.substr(formula.length - 1))) {
-                setFormula(formula.substr(0, formula.length - 1));
-              } else if (currentDisplay === "x") {
-                setFormula(formula + "*");
-              } else if (currentDisplay === "—") {
-                setFormula(formula + "-");
+              if (formulaGS.isInMathOperation) {
+                formulaGS.undo();
               } else {
-                setFormula(formula + currentDisplay);
-              }
+                formulaGS.append(currentDisplay);
+              };
               setCurrentDisplay("-");
             } else if (isNegative) {
               // remove negativity
@@ -239,7 +263,7 @@ function App() {
                 );
               }
             } else {
-              setFormula(formula + currentDisplay);
+              formulaGS.append(currentDisplay);
               setCurrentDisplay("—");
             }
             break;
@@ -247,7 +271,7 @@ function App() {
         }
       }
     },
-    [formula, currentDisplay, resetAll]
+    [currentDisplay, resetAll, formulaGS]
   );
 
   function maxLimitError() {
@@ -257,38 +281,28 @@ function App() {
   const inputDot = useCallback(
     (e) => {
       e.preventDefault();
-      if (formula.substr(formula.length - 1) === "=") {
+      if (formulaGS.hasEquals()) {
         resetAll(e);
       } else if (!/\.|LIMIT ERROR/.test(currentDisplay)) {
         setCurrentDisplay(currentDisplay + ".");
       }
     },
-    [formula, currentDisplay, resetAll]
+    [formulaGS, currentDisplay, resetAll]
   );
 
   const evaluate = useCallback(
     (e) => {
       e.preventDefault();
-      if (formula.substr(formula.length - 1) === "=") {
+      if (formulaGS.hasEquals()) {
       } else if (!/\+|x|\/|—|LIMIT ERROR/.test(currentDisplay)) {
-        let isNegative = currentDisplay.substr(0, 1) === "-" && true;
-        let equation =
-          isNegative && currentDisplay.length === 1
-            ? formula + "0"
-            : `${formula}${isNegative ? "(" : ""}${currentDisplay}${
-                isNegative ? ")" : ""
-              }`;
-        console.log("equation:", equation);
-        let answer = eval(equation);
-        setCurrentDisplay("" + answer);
-        setFormula(equation + "=");
+        setCurrentDisplay("" + eval(formulaGS.append(currentDisplay, true)));
       } else if (!/LIMIT ERROR/.test(currentDisplay)) {
-        console.log("equation:", formula);
-        setCurrentDisplay("" + eval(formula));
-        setFormula(formula + "=");
+        console.log("equation:", formulaGS.get);
+        setCurrentDisplay("" + eval(formulaGS.get));
+        formulaGS.putEquals();
       }
     },
-    [formula, currentDisplay]
+    [formulaGS, currentDisplay]
   );
 
   const handleKeyPress = useCallback(
@@ -313,20 +327,20 @@ function App() {
           break; // "+"
         case "/":
         case "\\":
-          el = document.getElementById("/");
+          el = document.getElementById("÷");
           el.classList.toggle("button-center-active");
           mathematicsOperations("", "÷");
           setTimeout(() => el.classList.toggle("button-center-active"), 280);
           break;
         case "x":
         case "*":
-          el = document.getElementById("x");
+          el = document.getElementById("×");
           el.classList.toggle("button-center-active");
           mathematicsOperations("", "×");
           setTimeout(() => el.classList.toggle("button-center-active"), 280);
           break;
         case "-":
-          el = document.getElementById("-");
+          el = document.getElementById("—");
           el.classList.toggle("button-center-active");
           mathematicsOperations("", "—");
           setTimeout(() => el.classList.toggle("button-center-active"), 280);
@@ -375,7 +389,7 @@ function App() {
   return (
     <div className="calculator">
       <div id="equation" className="equation">
-        {person}
+        {displayFormulaGS}
       </div>
       <div id="display" className="display">
         {currentDisplay}
@@ -386,15 +400,15 @@ function App() {
       <Special id="AC" skills={resetAll} keyCode="Escape" />
       <Special id="Nan" />
       <Special id="Nan" />
-      <MathButton id="÷" function={mathematicsOperations} keyCode="/" />
+      <MathButton id="÷" function={mathematicsOperations} keyCode="÷" />
       <Numbers id="7" numbers={handleNumbers} />
       <Numbers id="8" numbers={handleNumbers} />
       <Numbers id="9" numbers={handleNumbers} />
-      <MathButton id="×" function={mathematicsOperations} keyCode="x" />
+      <MathButton id="×" function={mathematicsOperations} keyCode="×" />
       <Numbers id="4" numbers={handleNumbers} />
       <Numbers id="5" numbers={handleNumbers} />
       <Numbers id="6" numbers={handleNumbers} />
-      <MathButton id="—" function={mathematicsOperations} keyCode="-" />
+      <MathButton id="—" function={mathematicsOperations} keyCode="—" />
       <Numbers id="1" numbers={handleNumbers} />
       <Numbers id="2" numbers={handleNumbers} />
       <Numbers id="3" numbers={handleNumbers} />
